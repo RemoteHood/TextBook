@@ -1,35 +1,62 @@
 // components/FileUpload.js
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import styles from '../styles/FileUpload.module.css';
 
-export default function FileUpload({ onUpload }) {
+export default function FileUpload({ onUploadProgress, onProcessingStage }) {
   const [file, setFile] = useState(null);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+  const onDrop = useCallback((acceptedFiles) => {
+    setFile(acceptedFiles[0]);
+  }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+    onDrop,
+    accept: {'application/pdf': ['.pdf']},
+    multiple: false
+  });
+
+  const handleUpload = async () => {
     if (!file) return;
 
     const formData = new FormData();
     formData.append('pdf', file);
 
-    const response = await fetch('/api/process-pdf', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      onProcessingStage('Uploading');
+      const response = await fetch('/api/process-pdf', {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      onUpload(data);
+      if (response.ok) {
+        onProcessingStage('Processing');
+        const data = await response.json();
+        onProcessingStage('Complete');
+        // Handle the processed data here
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      onProcessingStage('Error');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="file" accept=".pdf" onChange={handleFileChange} />
-      <button type="submit">Upload PDF</button>
-    </form>
+    <div className={styles.uploadContainer}>
+      <div {...getRootProps()} className={styles.dropzone}>
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p>Drop the PDF here ...</p>
+        ) : (
+          <p>Drag 'n' drop a PDF here, or click to select a file</p>
+        )}
+      </div>
+      {file && (
+        <button onClick={handleUpload} className={styles.uploadButton}>
+          Upload PDF
+        </button>
+      )}
+    </div>
   );
 }
+
