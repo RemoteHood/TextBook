@@ -97,3 +97,4 @@ async function extractCharacters(text) {
   return responseContent.split('\n');
 }
 
+
