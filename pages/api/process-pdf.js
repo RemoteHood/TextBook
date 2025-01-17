@@ -1,19 +1,13 @@
 import openai from '../../lib/openai';
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import formidable from 'formidable';
 import fs from 'fs';
+import pdfParse from 'pdf-parse';
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
-
-const textSplitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 1000,
-  chunkOverlap: 200,
-});
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -24,11 +18,10 @@ export default async function handler(req, res) {
       }
       try {
         const pdfPath = files.pdf.filepath;
-        const loader = new PDFLoader(pdfPath);
-        const pages = await loader.load();
-        const docs = await textSplitter.splitDocuments(pages);
-        const fullText = docs.map(doc => doc.pageContent).join(' ');
+        const dataBuffer = fs.readFileSync(pdfPath);
+        const data = await pdfParse(dataBuffer);
 
+        const fullText = data.text;
         const summary = await generateSummary(fullText);
         const processedText = await processText(summary);
         const characters = await extractCharacters(processedText);
