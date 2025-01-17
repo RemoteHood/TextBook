@@ -39,7 +39,7 @@ export default async function handler(req, res) {
         // Delete the temporary file
         fs.unlinkSync(pdfPath);
 
-        res.status(200).json({ summary, processedText, characters });
+        res.status(200).json({ summary, processedText, characters: characters.join('\n') });
       } catch (error) {
         console.error('Error processing PDF:', error);
         res.status(500).json({ error: 'Error processing PDF' });

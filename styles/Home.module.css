@@ -1,17 +1,42 @@
 .container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 600px;
-  }
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+}
+
+.processedData {
+  margin-top: 20px;
+  width: 100%;
+  text-align: left;
+}
+
+.processedData h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.processedData h3 {
+  font-size: 18px;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.processedData p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
   

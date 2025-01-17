@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import styles from '../styles/FileUpload.module.css';
 
-export default function FileUpload({ onUploadProgress, onProcessingStage }) {
+export default function FileUpload({ onUploadProgress, onProcessingStage, onProcessComplete }) {
   const [file, setFile] = useState(null);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -34,7 +34,7 @@ export default function FileUpload({ onUploadProgress, onProcessingStage }) {
         const data = await response.json();
         console.log('Processed data:', data);
         onProcessingStage('Complete');
-        // Handle the processed data here
+        onProcessComplete(data);
       } else {
         throw new Error('Server responded with an error');
       }
@@ -62,3 +62,4 @@ export default function FileUpload({ onUploadProgress, onProcessingStage }) {
     </div>
   );
 }
+
