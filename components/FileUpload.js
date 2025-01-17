@@ -5,12 +5,14 @@ import styles from '../styles/FileUpload.module.css';
 
 export default function FileUpload({ onUploadProgress, onProcessingStage, onProcessComplete }) {
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const onDrop = useCallback((acceptedFiles) => {
     setFile(acceptedFiles[0]);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {'application/pdf': ['.pdf']},
     multiple: false
@@ -18,6 +20,9 @@ export default function FileUpload({ onUploadProgress, onProcessingStage, onProc
 
   const handleUpload = async () => {
     if (!file) return;
+
+    setLoading(true);
+    setError(null);
 
     const formData = new FormData();
     formData.append('pdf', file);
@@ -41,6 +46,9 @@ export default function FileUpload({ onUploadProgress, onProcessingStage, onProc
     } catch (error) {
       console.error('Error uploading file:', error);
       onProcessingStage('Error');
+      setError('Error processing the file');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,11 +63,13 @@ export default function FileUpload({ onUploadProgress, onProcessingStage, onProc
         )}
       </div>
       {file && (
-        <button onClick={handleUpload} className={styles.uploadButton}>
-          Upload PDF
+        <button onClick={handleUpload} className={styles.uploadButton} disabled={loading}>
+          {loading ? 'Processing...' : 'Upload PDF'}
         </button>
       )}
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 }
+
 
