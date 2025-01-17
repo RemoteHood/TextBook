@@ -87,5 +87,13 @@ async function extractCharacters(text) {
       { role: "user", content: `Identify all the characters from the following text and present them in a clear, organized list: ${text}` }
     ]
   });
-  return response.choices[0].message.content.split('\n');
+
+  const responseContent = response.choices[0].message.content;
+
+  if (typeof responseContent !== 'string') {
+    throw new TypeError('Response content is not a string');
+  }
+
+  return responseContent.split('\n');
 }
+
