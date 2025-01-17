@@ -1,4 +1,3 @@
-// components/FileUpload.js
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import styles from '../styles/FileUpload.module.css';
@@ -71,5 +70,6 @@ export default function FileUpload({ onUploadProgress, onProcessingStage, onProc
     </div>
   );
 }
+
 
 

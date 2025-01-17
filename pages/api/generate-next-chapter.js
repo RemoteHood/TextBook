@@ -1,7 +1,4 @@
-// pages/api/generate-next-chapter.js
-import { OpenAI } from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import openai from '../../lib/openai';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

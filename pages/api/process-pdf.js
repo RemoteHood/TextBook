@@ -1,5 +1,4 @@
-// pages/api/process-pdf.js
-import { OpenAI } from 'openai';
+import openai from '../../lib/openai';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import formidable from 'formidable';
@@ -10,8 +9,6 @@ export const config = {
     bodyParser: false,
   },
 };
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const textSplitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1000,
@@ -96,5 +93,3 @@ async function extractCharacters(text) {
 
   return responseContent.split('\n');
 }
-
-

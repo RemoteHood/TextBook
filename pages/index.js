@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import styles from '../styles/Home.module.css';
 import FileUpload from '../components/FileUpload';
 import ProgressIndicator from '../components/ProgressIndicator';
+import styles from '../styles/globals.css';
 
 export default function Home() {
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [processingStage, setProcessingStage] = useState('');
-  const [processedData, setProcessedData] = useState(null);
+  const [processingStage, setProcessingStage] = useState(null);
+  const [processComplete, setProcessComplete] = useState(null);
 
   const handleUploadProgress = (progress) => {
     setUploadProgress(progress);
@@ -17,36 +17,35 @@ export default function Home() {
   };
 
   const handleProcessComplete = (data) => {
-    setProcessedData(data);
+    setProcessComplete(data);
   };
 
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <FileUpload 
-          onUploadProgress={handleUploadProgress}
-          onProcessingStage={handleProcessingStage}
-          onProcessComplete={handleProcessComplete}
+    <div className="container">
+      <h1>Upload Your PDF</h1>
+      <FileUpload
+        onUploadProgress={handleUploadProgress}
+        onProcessingStage={handleProcessingStage}
+        onProcessComplete={handleProcessComplete}
+      />
+      {processingStage && (
+        <ProgressIndicator
+          uploadProgress={uploadProgress}
+          processingStage={processingStage}
         />
-        {(uploadProgress > 0 || processingStage) && (
-          <ProgressIndicator 
-            uploadProgress={uploadProgress}
-            processingStage={processingStage}
-          />
-        )}
-        {processedData && (
-          <div className={styles.processedData}>
-            <h2>Processed Data</h2>
-            <h3>Summary</h3>
-            <p>{processedData.summary}</p>
-            <h3>Processed Text</h3>
-            <p>{processedData.processedText}</p>
-            <h3>Characters</h3>
-            <p>{processedData.characters}</p>
-          </div>
-        )}
-      </main>
+      )}
+      {processComplete && (
+        <div>
+          <h2>Summary</h2>
+          <p>{processComplete.summary}</p>
+          <h2>Processed Text</h2>
+          <p>{processComplete.processedText}</p>
+          <h2>Characters</h2>
+          <p>{processComplete.characters}</p>
+        </div>
+      )}
     </div>
   );
 }
+
 
