@@ -3,6 +3,7 @@ import { OpenAI } from 'openai';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import formidable from 'formidable';
+import fs from 'fs';
 
 export const config = {
   api: {
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Error parsing form data' });
       }
       try {
-        const pdfPath = files.pdf.path;
+        const pdfPath = files.pdf.filepath;
         const loader = new PDFLoader(pdfPath);
         const pages = await loader.load();
         const docs = await textSplitter.splitDocuments(pages);
@@ -35,8 +36,12 @@ export default async function handler(req, res) {
         const processedText = await processText(summary);
         const characters = await extractCharacters(processedText);
 
+        // Delete the temporary file
+        fs.unlinkSync(pdfPath);
+
         res.status(200).json({ summary, processedText, characters });
       } catch (error) {
+        console.error('Error processing PDF:', error);
         res.status(500).json({ error: 'Error processing PDF' });
       }
     });

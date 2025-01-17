@@ -32,8 +32,11 @@ export default function FileUpload({ onUploadProgress, onProcessingStage }) {
       if (response.ok) {
         onProcessingStage('Processing');
         const data = await response.json();
+        console.log('Processed data:', data);
         onProcessingStage('Complete');
         // Handle the processed data here
+      } else {
+        throw new Error('Server responded with an error');
       }
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -59,4 +62,3 @@ export default function FileUpload({ onUploadProgress, onProcessingStage }) {
     </div>
   );
 }
-
