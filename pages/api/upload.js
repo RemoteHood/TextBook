@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 async function identifyCharacters(text) {
   try {
     const response = await openai.createCompletion({
-      model: "text-davinci-003",
+      model: "gpt-4o-mini",
       prompt: `Identify and list the main characters in the following text. Only include names of people or beings, not places or objects:\n\n${text.substring(0, 2000)}`,
       max_tokens: 150,
       temperature: 0.5,
@@ -58,7 +58,7 @@ async function identifyCharacters(text) {
 async function generateSummary(text) {
   try {
     const response = await openai.createCompletion({
-      model: "text-davinci-003",
+      model: "gpt-4o-mini",
       prompt: `Summarize the following text in 3-4 sentences:\n\n${text.substring(0, 2000)}`,
       max_tokens: 150,
       temperature: 0.7,

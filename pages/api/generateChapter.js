@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
     try {
       const response = await openai.createCompletion({
-        model: 'text-davinci-003',
+        model: 'gpt-4o-mini',
         prompt: `Generate a chapter based on the following characters: ${characters.join(', ')}. The genres are: ${genres.join(', ')}.`,
         max_tokens: 150,
       });
