@@ -43,7 +43,7 @@ async function identifyCharacters(text) {
     const response = await openai.createCompletion({
       model: "gpt-4o-mini",
       prompt: `Identify and list the main characters in the following text. Only include names of people or beings, not places or objects:\n\n${text.substring(0, 2000)}`,
-      max_tokens: 150,
+      max_tokens: 1500,
       temperature: 0.5,
     });
 
@@ -60,7 +60,7 @@ async function generateSummary(text) {
     const response = await openai.createCompletion({
       model: "gpt-4o-mini",
       prompt: `Summarize the following text in 3-4 sentences:\n\n${text.substring(0, 2000)}`,
-      max_tokens: 150,
+      max_tokens: 1500,
       temperature: 0.7,
     });
 
