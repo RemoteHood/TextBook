@@ -42,7 +42,7 @@ async function identifyCharacters(text) {
   try {
     const response = await openai.createCompletion({
       model: "gpt-4o-mini",
-      prompt: `Identify and list the main characters in the following text. Only include names of people or beings, not places or objects:\n\n${text.substring(0, 2000)}`,
+      prompt: `Identify and list the main characters in the following text. After each full name place "/n" in between. Only include names of people or beings, not places or objects:\n\n${text.substring(0, 2000)}`,
       max_tokens: 1500,
       temperature: 0.5,
     });
