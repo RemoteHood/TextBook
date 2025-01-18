@@ -1,18 +1,17 @@
 import formidable from 'formidable';
 import fs from 'fs';
 import pdf from 'pdf-parse';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -39,34 +38,30 @@ export default async function handler(req, res) {
 }
 
 async function identifyCharacters(text) {
-  try {
-    const response = await openai.createCompletion({
-      model: "gpt-4o-mini",
-      prompt: `Identify and list the main characters in the following text. After each full name place "/n" in between. Only include names of people or beings, not places or objects:\n\n${text.substring(0, 2000)}`,
-      max_tokens: 1500,
-      temperature: 0.5,
-    });
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: "You are a helpful assistant that identifies character names in text." },
+      { role: "user", content: `Please identify and list all character names mentioned in the following text. Only return the names as a comma-separated list:\n\n${text}` }
+    ],
+    temperature: 0.7,
+    max_tokens: 1000
+  });
 
-    const characterList = response.data.choices[0].text.trim().split('\n');
-    return characterList.map(char => char.replace(/^\d+\.\s*/, '').trim()).filter(char => char !== '');
-  } catch (error) {
-    console.error('Error identifying characters:', error);
-    return ['Error identifying characters'];
-  }
+  return completion.choices[0].message.content.split(',').map(char => char.trim());
 }
 
 async function generateSummary(text) {
-  try {
-    const response = await openai.createCompletion({
-      model: "gpt-4o-mini",
-      prompt: `Summarize the following text in 3-4 sentences:\n\n${text.substring(0, 2000)}`,
-      max_tokens: 1500,
-      temperature: 0.7,
-    });
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [
+      { role: "system", content: "You are a helpful assistant that generates concise summaries of text." },
+      { role: "user", content: `Please generate a brief summary of the following text:\n\n${text}` }
+    ],
+    temperature: 0.7,
+    max_tokens: 1000
+  });
 
-    return response.data.choices[0].text.trim();
-  } catch (error) {
-    console.error('Error generating summary:', error);
-    return 'Error generating summary';
-  }
+  return completion.choices[0].message.content;
 }
+
