@@ -1,12 +1,18 @@
 import formidable from 'formidable';
 import fs from 'fs';
 import pdf from 'pdf-parse';
+import { Configuration, OpenAIApi } from 'openai';
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -22,8 +28,8 @@ export default async function handler(req, res) {
       const data = await pdf(dataBuffer);
 
       const text = data.text;
-      const characters = identifyCharacters(text);
-      const summary = generateSummary(text);
+      const characters = await identifyCharacters(text);
+      const summary = await generateSummary(text);
 
       res.status(200).json({ text, characters, summary });
     });
@@ -32,12 +38,35 @@ export default async function handler(req, res) {
   }
 }
 
-function identifyCharacters(text) {
-  // Implement character identification logic
-  return ['Character 1', 'Character 2'];
+async function identifyCharacters(text) {
+  try {
+    const response = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: `Identify and list the main characters in the following text. Only include names of people or beings, not places or objects:\n\n${text.substring(0, 2000)}`,
+      max_tokens: 150,
+      temperature: 0.5,
+    });
+
+    const characterList = response.data.choices[0].text.trim().split('\n');
+    return characterList.map(char => char.replace(/^\d+\.\s*/, '').trim()).filter(char => char !== '');
+  } catch (error) {
+    console.error('Error identifying characters:', error);
+    return ['Error identifying characters'];
+  }
 }
 
-function generateSummary(text) {
-  // Implement summary generation logic
-  return 'This is a summary of the PDF content.';
+async function generateSummary(text) {
+  try {
+    const response = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: `Summarize the following text in 3-4 sentences:\n\n${text.substring(0, 2000)}`,
+      max_tokens: 150,
+      temperature: 0.7,
+    });
+
+    return response.data.choices[0].text.trim();
+  } catch (error) {
+    console.error('Error generating summary:', error);
+    return 'Error generating summary';
+  }
 }
