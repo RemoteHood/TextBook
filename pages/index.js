@@ -41,7 +41,7 @@ export default function Home() {
       <div className={styles.content}>
         <Sidebar characters={characters} genres={genres} onSelect={handleSelect} />
         <div className={styles.main}>
-          <button onClick={handleGenerateChapter}>Generate Chapter</button>
+          <button className={styles.button} onClick={handleGenerateChapter}>Generate Chapter</button>
           {chapter && <ChapterDisplay title={chapter.title} content={chapter.content} />}
         </div>
       </div>
