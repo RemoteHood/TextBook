@@ -1,35 +1,45 @@
-const [message, setMessage] = useState(null);
+import { useState } from 'react';
 
-const handleUpload = async () => {
-  if (!file) {
-    setMessage("Please select a file first.");
-    return;
-  }
+export default function FileUpload({ onUpload }) {
+  const [file, setFile] = useState(null);
 
-  setMessage("Uploading...");
-  const formData = new FormData();
-  formData.append('file', file);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
-  try {
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+  const handleUpload = async () => {
+    if (!file) {
+      alert('Please select a file before uploading.');
+      return;
+    }
 
-    const data = await response.json();
-    setMessage("Upload successful!");
-    onUpload(data);
-  } catch (error) {
-    setMessage("Error uploading file.");
-    console.error(error);
-  }
-};
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
 
-return (
-  <div>
-    <input type="file" onChange={handleFileChange} accept=".pdf" />
-    <button onClick={handleUpload} disabled={!file}>Upload</button>
-    {message && <p>{message}</p>}
-  </div>
-);
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const data = await response.json();
+      onUpload(data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Error uploading file. Please try again.');
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} accept=".pdf" />
+      <button onClick={handleUpload} disabled={!file}>Upload</button>
+    </div>
+  );
+}
+
 
