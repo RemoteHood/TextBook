@@ -14,25 +14,35 @@ export default function Home() {
   };
 
   const handleSelect = (type, value) => {
-    if (type === 'character') {
+    if (type === 'character' && !characters.includes(value)) {
       setCharacters((prev) => [...prev, value]);
-    } else if (type === 'genre') {
+    } else if (type === 'genre' && !genres.includes(value)) {
       setGenres((prev) => [...prev, value]);
     }
   };
+  
+  const [loading, setLoading] = useState(false);
 
   const handleGenerateChapter = async () => {
-    const response = await fetch('/api/generateChapter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ characters, genres }),
-    });
-
-    const data = await response.json();
-    setChapter(data);
+    setLoading(true);
+    try {
+      const response = await fetch('/api/generateChapter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ characters, genres }),
+      });
+  
+      const data = await response.json();
+      setChapter(data);
+    } catch (error) {
+      console.error('Error generating chapter:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   return (
     <div className={styles.container}>
@@ -41,7 +51,9 @@ export default function Home() {
       <div className={styles.content}>
         <Sidebar characters={characters} genres={genres} onSelect={handleSelect} />
         <div className={styles.main}>
-          <button className={styles.button} onClick={handleGenerateChapter}>Generate Chapter</button>
+        <button className={styles.button} onClick={handleGenerateChapter} disabled={loading}>
+  {loading ? 'Generating...' : 'Generate Chapter'}
+</button>
           {chapter && <ChapterDisplay title={chapter.title} content={chapter.content} />}
         </div>
       </div>

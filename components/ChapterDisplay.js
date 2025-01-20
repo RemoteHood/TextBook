@@ -1,9 +1,12 @@
 export default function ChapterDisplay({ title, content }) {
-    return (
-      <div>
-        <h2>{title}</h2>
-        <p>{content}</p>
-      </div>
-    );
-  }
+  if (!title || !content) return <p>No chapter to display.</p>;
+
+  return (
+    <div>
+      <h2>{title}</h2>
+      <p>{content}</p>
+    </div>
+  );
+}
+
   

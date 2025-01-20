@@ -1,29 +1,35 @@
-import { useState } from 'react';
+const [message, setMessage] = useState(null);
 
-export default function FileUpload({ onUpload }) {
-  const [file, setFile] = useState(null);
+const handleUpload = async () => {
+  if (!file) {
+    setMessage("Please select a file first.");
+    return;
+  }
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
+  setMessage("Uploading...");
+  const formData = new FormData();
+  formData.append('file', file);
 
-  const handleUpload = async () => {
-    const formData = new FormData();
-    formData.append('file', file);
-
+  try {
     const response = await fetch('/api/upload', {
       method: 'POST',
       body: formData,
     });
 
     const data = await response.json();
+    setMessage("Upload successful!");
     onUpload(data);
-  };
+  } catch (error) {
+    setMessage("Error uploading file.");
+    console.error(error);
+  }
+};
 
-  return (
-    <div>
-      <input type="file" onChange={handleFileChange} accept=".pdf" />
-      <button onClick={handleUpload}>Upload</button>
-    </div>
-  );
-}
+return (
+  <div>
+    <input type="file" onChange={handleFileChange} accept=".pdf" />
+    <button onClick={handleUpload} disabled={!file}>Upload</button>
+    {message && <p>{message}</p>}
+  </div>
+);
+

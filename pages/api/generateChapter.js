@@ -38,5 +38,8 @@ export default async function handler(req, res) {
 }
 
 function generateChapterTitle(characters, genres) {
-  return `Chapter: ${characters[0]}'s Adventure`;
+  if (!characters.length || !genres.length) return "Untitled Chapter";
+  const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+  return `Chapter: ${randomCharacter}'s Journey in ${genres[0]}`;
 }
+
