@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 export default function Sidebar({ characters = [], genres = [], onSelect }) {
   const [selected, setSelected] = useState({ type: null, value: null });
 

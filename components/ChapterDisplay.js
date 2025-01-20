@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+
 export default function ChapterDisplay({ title, content }) {
   if (!title || !content) return <p>No chapter to display.</p>;
 
