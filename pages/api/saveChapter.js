@@ -1,30 +1,24 @@
-import fs from 'fs/promises';
-import path from 'path';
-
-const chaptersFilePath = path.join(process.cwd(), 'data', 'chapters.json');
+import { MongoClient } from 'mongodb';
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const { title, content } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
 
-    try {
-      let chapters = [];
-      if (await fs.access(chaptersFilePath).then(() => true).catch(() => false)) {
-        const data = await fs.readFile(chaptersFilePath, 'utf-8');
-        chapters = JSON.parse(data);
-      }
-
-      chapters.push({ title, content });
-      await fs.writeFile(chaptersFilePath, JSON.stringify(chapters, null, 2));
-
-      res.status(200).json({ message: 'Chapter saved successfully' });
-    } catch (error) {
-      console.error('Error saving chapter:', error);
-      res.status(500).json({ error: 'Error saving chapter' });
-    }
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
+  try {
+    const chapter = req.body;
+    const client = await MongoClient.connect(process.env.MONGODB_URI);
+    const db = client.db('textbook');
+    
+    await db.collection('chapters').insertOne(chapter);
+    
+    await client.close();
+    res.status(200).json({ message: 'Chapter saved successfully' });
+  } catch (error) {
+    console.error('Error saving chapter:', error);
+    res.status(500).json({ message: 'Error saving chapter' });
   }
 }
+
 
 

@@ -1,33 +1,50 @@
-import { openai } from '@ai-sdk/openai';
-import { generateText } from 'ai';
+import { OpenAI } from 'langchain/llms/openai';
+import { PromptTemplate } from 'langchain/prompts';
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  try {
     const { characters, genres, previousContent } = req.body;
 
-    try {
-      const prompt = `Generate a chapter based on the following characters: ${characters.join(', ')}. The genres are: ${genres.join(', ')}.${previousContent ? ` Continue from this previous content: ${previousContent}` : ''}`;
+    const llm = new OpenAI({
+      temperature: 0.7,
+      modelName: 'gpt-4',
+    });
 
-      const { text } = await generateText({
-        model: openai('gpt-4'),
-        prompt: prompt
-      });
+    const template = `
+    Write a chapter for a story with the following requirements:
+    Characters: ${characters.join(', ')}
+    Genres: ${genres.join(', ')}
+    ${previousContent ? `Previous content: ${previousContent}` : ''}
+    
+    Create an engaging chapter that advances the story while maintaining consistency with the characters and genres.
+    Include character interactions, plot development, and appropriate atmosphere for the genres.
+    
+    The chapter should be between 1000-1500 words.
+    `;
 
-      const chapterTitle = generateChapterTitle(characters, genres);
+    const prompt = new PromptTemplate({
+      template,
+      inputVariables: [],
+    });
 
-      res.status(200).json({ title: chapterTitle, content: text });
-    } catch (error) {
-      console.error('Error generating chapter:', error);
-      res.status(500).json({ error: 'Error generating chapter' });
-    }
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    const formattedPrompt = await prompt.format({});
+    const result = await llm.predict(formattedPrompt);
+
+    const chapter = {
+      title: `Chapter ${Math.floor(Math.random() * 1000)}`,
+      content: result,
+      characters,
+      genres,
+      timestamp: new Date().toISOString(),
+    };
+
+    res.status(200).json(chapter);
+  } catch (error) {
+    console.error('Error generating chapter:', error);
+    res.status(500).json({ message: 'Error generating chapter' });
   }
 }
-
-function generateChapterTitle(characters, genres) {
-  if (!characters.length || !genres.length) return "Untitled Chapter";
-  const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
-  return `Chapter: ${randomCharacter}'s Journey in ${genres[0]}`;
-}
-

@@ -1,22 +1,24 @@
 .container {
-  padding: 20px;
-}
-
-.content {
-  display: flex;
+  @apply min-h-screen p-8;
 }
 
 .main {
-  flex: 1;
-  margin-left: 20px;
+  @apply flex flex-col gap-8 max-w-7xl mx-auto;
 }
 
-.button {
-  margin-top: 20px;
+.header {
+  @apply text-4xl font-bold text-center mb-8;
 }
 
-.navigation {
-  margin-top: 20px;
+.content {
+  @apply flex gap-8;
 }
 
+.sidebar {
+  @apply w-64 flex-shrink-0;
+}
+
+.chapter {
+  @apply flex-grow;
+}
   

@@ -1,8 +1,7 @@
 import formidable from 'formidable';
 import fs from 'fs/promises';
 import pdf from 'pdf-parse';
-import { openai } from '@ai-sdk/openai';
-import { generateText } from 'ai';
+import { OpenAI } from 'langchain/llms/openai';
 
 export const config = {
   api: {
@@ -11,71 +10,62 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      const form = new IncomingForm();
-      form.uploadDir = "/tmp";
-      form.keepExtensions = true;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
 
-      form.parse(req, async (err, fields, files) => {
-        if (err) {
-          return res.status(500).json({ error: 'Error parsing the file' });
-        }
-
-        const filePath = files.file[0].filepath;
-        const dataBuffer = await fs.readFile(filePath);
-        const data = await pdf(dataBuffer);
-
-        const text = data.text;
-        const chunks = splitTextIntoChunks(text, 2000);
-        const characters = await Promise.all(chunks.map(chunk => identifyCharacters(chunk)));
-        const uniqueCharacters = [...new Set(characters.flat())];
-        const summary = await generateSummary(text);
-
-        res.status(200).json({ characters: uniqueCharacters, summary });
+  try {
+    const form = new formidable.IncomingForm();
+    
+    const [fields, files] = await new Promise((resolve, reject) => {
+      form.parse(req, (err, fields, files) => {
+        if (err) reject(err);
+        resolve([fields, files]);
       });
-    } catch (error) {
-      console.error('Error handling request:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  } else {
-    res.status(405).json({ error: 'Method not allowed' });
-  }
-}
-function splitTextIntoChunks(text, chunkSize) {
-  const chunks = [];
-  for (let i = 0; i < text.length; i += chunkSize) {
-    chunks.push(text.slice(i, i + chunkSize));
-  }
-  return chunks;
-}
-
-async function identifyCharacters(text) {
-  try {
-    const { text: result } = await generateText({
-      model: openai('gpt-4'),
-      prompt: `Please identify and list all character names mentioned in the following text. Only return the names as a comma-separated list:\n\n${text}`
     });
 
-    return result.split(',').map(char => char.trim());
+    const file = files.pdf;
+    const buffer = await fs.readFile(file.filepath);
+    const data = await pdf(buffer);
+
+    const llm = new OpenAI({
+      temperature: 0.3,
+      modelName: 'gpt-4',
+    });
+
+    const analysisPrompt = `
+    Analyze the following text and extract:
+    1. Main characters
+    2. Important places
+    3. Key events
+    4. Timeline
+    5. Brief summary
+
+    Text: ${data.text.substring(0, 8000)}
+    `;
+
+    const analysis = await llm.predict(analysisPrompt);
+
+    res.status(200).json({
+      analysis,
+      characters: extractCharacters(analysis),
+      summary: extractSummary(analysis),
+    });
   } catch (error) {
-    console.error('Error identifying characters:', error);
-    throw new Error('Failed to identify characters');
+    console.error('Error processing upload:', error);
+    res.status(500).json({ message: 'Error processing upload' });
   }
 }
 
-async function generateSummary(text) {
-  try {
-    const { text: result } = await generateText({
-      model: openai('gpt-4'),
-      prompt: `Please generate a brief summary of the following text:\n\n${text}`
-    });
+function extractCharacters(analysis) {
+  // Simple extraction - can be improved
+  const characterSection = analysis.split('Main characters:')[1]?.split('\n')[0] || '';
+  return characterSection.split(',').map(char => char.trim()).filter(Boolean);
+}
 
-    return result;
-  } catch (error) {
-    console.error('Error generating summary:', error);
-    throw new Error('Failed to generate summary');
-  }
+function extractSummary(analysis) {
+  const summarySection = analysis.split('Brief summary:')[1]?.trim() || '';
+  return summarySection;
 }
 
 

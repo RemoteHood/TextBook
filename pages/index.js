@@ -5,35 +5,57 @@ import ChapterDisplay from '../components/ChapterDisplay';
 
 export default function Home() {
   const [characters, setCharacters] = useState([]);
-  const [genres, setGenres] = useState(['Fantasy', 'Adventure', 'Mystery']);
-  const [chapter, setChapter] = useState(null);
+  const [selectedCharacters, setSelectedCharacters] = useState([]);
+  const [genres] = useState(['Fantasy', 'Adventure', 'Mystery', 'Romance', 'Sci-Fi']);
+  const [selectedGenres, setSelectedGenres] = useState([]);
   const [chapters, setChapters] = useState([]);
+  const [currentChapter, setCurrentChapter] = useState(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchChapters = async () => {
+    loadChapters();
+  }, []);
+
+  const loadChapters = async () => {
+    try {
       const response = await fetch('/api/loadChapters');
       const data = await response.json();
       setChapters(data);
-    };
+      if (data.length > 0) {
+        setCurrentChapter(data[0]);
+      }
+    } catch (error) {
+      console.error('Error loading chapters:', error);
+    }
+  };
 
-    fetchChapters();
-  }, []);
-
-  const handleUpload = (data) => {
+  const handleUpload = async (data) => {
     setCharacters(data.characters);
   };
 
   const handleSelect = (type, value) => {
-    if (type === 'character' && !characters.includes(value)) {
-      setCharacters((prev) => [...prev, value]);
-    } else if (type === 'genre' && !genres.includes(value)) {
-      setGenres((prev) => [...prev, value]);
+    if (type === 'character') {
+      setSelectedCharacters(prev => 
+        prev.includes(value)
+          ? prev.filter(char => char !== value)
+          : [...prev, value]
+      );
+    } else if (type === 'genre') {
+      setSelectedGenres(prev =>
+        prev.includes(value)
+          ? prev.filter(genre => genre !== value)
+          : [...prev, value]
+      );
     }
   };
 
-  const handleGenerateChapter = async () => {
+  const generateChapter = async () => {
+    if (selectedCharacters.length === 0 || selectedGenres.length === 0) {
+      alert('Please select at least one character and one genre');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch('/api/generateChapter', {
@@ -41,95 +63,81 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ characters, genres }),
+        body: JSON.stringify({
+          characters: selectedCharacters,
+          genres: selectedGenres,
+          previousContent: currentChapter?.content,
+        }),
       });
 
-      const data = await response.json();
-      setChapter(data);
-      setChapters((prev) => [...prev, data]);
-      setCurrentChapterIndex(chapters.length);
-
+      const newChapter = await response.json();
+      
       await fetch('/api/saveChapter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(newChapter),
       });
+
+      setChapters(prev => [...prev, newChapter]);
+      setCurrentChapter(newChapter);
+      setCurrentChapterIndex(chapters.length);
     } catch (error) {
       console.error('Error generating chapter:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGenerateNextChapter = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/generateChapter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ characters, genres, previousContent: chapter.content }),
-      });
-
-      const data = await response.json();
-      setChapter(data);
-      setChapters((prev) => [...prev, data]);
-      setCurrentChapterIndex(chapters.length + 1);
-
-      await fetch('/api/saveChapter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-    } catch (error) {
-      console.error('Error generating next chapter:', error);
+      alert('Error generating chapter');
     } finally {
       setLoading(false);
     }
   };
 
   const handleNavigate = (index) => {
-    setCurrentChapterIndex(index);
-    setChapter(chapters[index]);
+    if (index >= 0 && index < chapters.length) {
+      setCurrentChapter(chapters[index]);
+      setCurrentChapterIndex(index);
+    }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">PDF Story Generator</h1>
-      <FileUpload onUpload={handleUpload} />
-      <div className="flex">
-        <Sidebar characters={characters} genres={genres} onSelect={handleSelect} />
-        <div className="flex-1 ml-4">
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-            onClick={handleGenerateChapter}
-            disabled={loading}
-          >
-            {loading ? 'Generating...' : 'Generate Chapter'}
-          </button>
-          {chapter && (
+    <div className="container">
+      <h1 className="header">Story Generator</h1>
+      <div className="mb-8">
+        <FileUpload onUpload={handleUpload} />
+      </div>
+      <div className="content">
+        <div className="sidebar">
+          <Sidebar
+            characters={characters}
+            genres={genres}
+            selectedCharacters={selectedCharacters}
+            selectedGenres={selectedGenres}
+            onSelect={handleSelect}
+          />
+        </div>
+        <div className="chapter">
+          {currentChapter ? (
             <ChapterDisplay
-              title={chapter.title}
-              content={chapter.content}
-              onGenerateNext={handleGenerateNextChapter}
+              title={currentChapter.title}
+              content={currentChapter.content}
+              onGenerateNext={generateChapter}
+              onNavigate={handleNavigate}
+              currentChapterIndex={currentChapterIndex}
+              totalChapters={chapters.length}
             />
-          )}
-          <div className="mt-4">
-            {chapters.map((chapter, index) => (
+          ) : (
+            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+              <p className="text-gray-600">
+                Upload a PDF and select characters and genres to generate your first chapter
+              </p>
               <button
-                key={index}
-                onClick={() => handleNavigate(index)}
-                className="mr-2 mb-2 bg-gray-200 px-2 py-1 rounded"
+                onClick={generateChapter}
+                disabled={selectedCharacters.length === 0 || selectedGenres.length === 0 || loading}
+                className="btn btn-primary mt-4"
               >
-                Chapter {index + 1}
+                {loading ? 'Generating...' : 'Generate First Chapter'}
               </button>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
