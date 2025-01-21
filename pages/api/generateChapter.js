@@ -1,5 +1,5 @@
-import { OpenAI } from 'langchain/llms/openai';
-import { PromptTemplate } from 'langchain/prompts';
+import { OpenAI } from '@langchain/openai'; // Updated import
+import { PromptTemplate } from '@langchain/core/prompts'; // Updated import
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

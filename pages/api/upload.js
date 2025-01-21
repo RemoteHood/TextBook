@@ -1,7 +1,8 @@
-import formidable from 'formidable';
+// pages/api/upload.js
+import { IncomingForm } from 'formidable';
 import fs from 'fs/promises';
 import pdf from 'pdf-parse';
-import { OpenAI } from 'langchain/llms/openai';
+import { OpenAI } from '@langchain/openai'; // Updated import
 
 export const config = {
   api: {
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const form = new formidable.IncomingForm();
+    const form = new IncomingForm();
     
     const [fields, files] = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
@@ -24,7 +25,8 @@ export default async function handler(req, res) {
       });
     });
 
-    const file = files.pdf;
+    // Access the file using the correct property path
+    const file = Array.isArray(files.pdf) ? files.pdf[0] : files.pdf;
     const buffer = await fs.readFile(file.filepath);
     const data = await pdf(buffer);
 
@@ -46,6 +48,9 @@ export default async function handler(req, res) {
 
     const analysis = await llm.predict(analysisPrompt);
 
+    // Clean up the temporary file
+    await fs.unlink(file.filepath);
+
     res.status(200).json({
       analysis,
       characters: extractCharacters(analysis),
@@ -53,12 +58,11 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Error processing upload:', error);
-    res.status(500).json({ message: 'Error processing upload' });
+    res.status(500).json({ message: 'Error processing upload', error: error.message });
   }
 }
 
 function extractCharacters(analysis) {
-  // Simple extraction - can be improved
   const characterSection = analysis.split('Main characters:')[1]?.split('\n')[0] || '';
   return characterSection.split(',').map(char => char.trim()).filter(Boolean);
 }
