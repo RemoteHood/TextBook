@@ -13,7 +13,7 @@ export const config = {
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const form = new formidable.IncomingForm();
+      const form = new IncomingForm();
       form.uploadDir = "/tmp";
       form.keepExtensions = true;
 
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: 'Error parsing the file' });
         }
 
-        const filePath = files.file.filepath || files.file.path;
+        const filePath = files.file[0].filepath;
         const dataBuffer = await fs.readFile(filePath);
         const data = await pdf(dataBuffer);
 
@@ -42,7 +42,6 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   }
 }
-
 function splitTextIntoChunks(text, chunkSize) {
   const chunks = [];
   for (let i = 0; i < text.length; i += chunkSize) {
