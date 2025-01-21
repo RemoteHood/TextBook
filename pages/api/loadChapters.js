@@ -6,7 +6,7 @@ const chaptersFilePath = path.join(process.cwd(), 'data', 'chapters.json');
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      if (await fs.exists(chaptersFilePath)) {
+      if (await fs.access(chaptersFilePath).then(() => true).catch(() => false)) {
         const data = await fs.readFile(chaptersFilePath, 'utf-8');
         const chapters = JSON.parse(data);
         res.status(200).json(chapters);
@@ -21,3 +21,4 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   }
 }
+

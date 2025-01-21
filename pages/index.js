@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import FileUpload from '../components/FileUpload';
 import Sidebar from '../components/Sidebar';
 import ChapterDisplay from '../components/ChapterDisplay';
-import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [characters, setCharacters] = useState([]);
@@ -100,13 +99,17 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
-      <h1>PDF Story Generator</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">PDF Story Generator</h1>
       <FileUpload onUpload={handleUpload} />
-      <div className={styles.content}>
+      <div className="flex">
         <Sidebar characters={characters} genres={genres} onSelect={handleSelect} />
-        <div className={styles.main}>
-          <button className={styles.button} onClick={handleGenerateChapter} disabled={loading}>
+        <div className="flex-1 ml-4">
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+            onClick={handleGenerateChapter}
+            disabled={loading}
+          >
             {loading ? 'Generating...' : 'Generate Chapter'}
           </button>
           {chapter && (
@@ -116,9 +119,13 @@ export default function Home() {
               onGenerateNext={handleGenerateNextChapter}
             />
           )}
-          <div className={styles.navigation}>
+          <div className="mt-4">
             {chapters.map((chapter, index) => (
-              <button key={index} onClick={() => handleNavigate(index)}>
+              <button
+                key={index}
+                onClick={() => handleNavigate(index)}
+                className="mr-2 mb-2 bg-gray-200 px-2 py-1 rounded"
+              >
                 Chapter {index + 1}
               </button>
             ))}
@@ -128,6 +135,7 @@ export default function Home() {
     </div>
   );
 }
+
 
 
 

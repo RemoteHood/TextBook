@@ -1,35 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-export default function Sidebar({ characters = [], genres = [], onSelect }) {
-  const [selected, setSelected] = useState({ type: null, value: null });
-
-  const handleSelect = (type, value) => {
-    setSelected({ type, value });
-    onSelect(type, value);
-  };
-
+export default function Sidebar({ characters, genres, onSelect }) {
   return (
-    <div>
-      <h3>Characters</h3>
-      <ul>
-        {characters.map((character, index) => (
-          <li
-            key={index}
-            onClick={() => handleSelect('character', character)}
-            style={{ fontWeight: selected.type === 'character' && selected.value === character ? 'bold' : 'normal' }}
-          >
-            {character}
+    <div className="w-64 bg-gray-100 p-4">
+      <h2 className="text-xl font-bold mb-2">Characters</h2>
+      <ul className="mb-4">
+        {characters.map((char, index) => (
+          <li key={index} className="cursor-pointer hover:text-blue-500" onClick={() => onSelect('character', char)}>
+            {char}
           </li>
         ))}
       </ul>
-      <h3>Genres</h3>
+      <h2 className="text-xl font-bold mb-2">Genres</h2>
       <ul>
         {genres.map((genre, index) => (
-          <li
-            key={index}
-            onClick={() => handleSelect('genre', genre)}
-            style={{ fontWeight: selected.type === 'genre' && selected.value === genre ? 'bold' : 'normal' }}
-          >
+          <li key={index} className="cursor-pointer hover:text-blue-500" onClick={() => onSelect('genre', genre)}>
             {genre}
           </li>
         ))}
@@ -37,6 +22,7 @@ export default function Sidebar({ characters = [], genres = [], onSelect }) {
     </div>
   );
 }
+
 
 
   

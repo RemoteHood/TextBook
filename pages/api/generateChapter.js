@@ -3,12 +3,14 @@ import { generateText } from 'ai';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { characters, genres } = req.body;
+    const { characters, genres, previousContent } = req.body;
 
     try {
+      const prompt = `Generate a chapter based on the following characters: ${characters.join(', ')}. The genres are: ${genres.join(', ')}.${previousContent ? ` Continue from this previous content: ${previousContent}` : ''}`;
+
       const { text } = await generateText({
-        model: openai('gpt-4o-mini'),
-        prompt: `Generate a chapter based on the following characters: ${characters.join(', ')}. The genres are: ${genres.join(', ')}.`
+        model: openai('gpt-4'),
+        prompt: prompt
       });
 
       const chapterTitle = generateChapterTitle(characters, genres);

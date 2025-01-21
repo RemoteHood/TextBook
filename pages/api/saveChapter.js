@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
     try {
       let chapters = [];
-      if (await fs.exists(chaptersFilePath)) {
+      if (await fs.access(chaptersFilePath).then(() => true).catch(() => false)) {
         const data = await fs.readFile(chaptersFilePath, 'utf-8');
         chapters = JSON.parse(data);
       }
@@ -26,4 +26,5 @@ export default async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   }
 }
+
 

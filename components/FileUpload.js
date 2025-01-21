@@ -35,12 +35,15 @@ export default function FileUpload({ onUpload }) {
   };
 
   return (
-    <div>
-      <input type="file" onChange={handleFileChange} accept=".pdf" />
-      <button onClick={handleUpload} disabled={!file}>Upload</button>
+    <div className="mb-4">
+      <input type="file" onChange={handleFileChange} accept=".pdf" className="mb-2" />
+      <button onClick={handleUpload} disabled={!file} className="bg-blue-500 text-white px-4 py-2 rounded">
+        Upload
+      </button>
     </div>
   );
 }
+
 
 
 
