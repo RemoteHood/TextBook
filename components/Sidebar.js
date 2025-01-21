@@ -38,4 +38,5 @@ export default function Sidebar({ characters = [], genres = [], onSelect }) {
   );
 }
 
+
   

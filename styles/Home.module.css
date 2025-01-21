@@ -1,53 +1,22 @@
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .content {
-    display: flex;
-    margin-top: 20px;
-  }
-  
-  .main {
-    flex: 1;
-    padding: 0 20px;
-  }
-  
-  .sidebar {
-    width: 200px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .sidebar li {
-    cursor: pointer;
-    padding: 5px 0;
-  }
-  
-  .sidebar li:hover {
-    color: #0070f3;
-  }
-  
-  .button {
-    background-color: #0070f3;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .button:hover {
-    background-color: #0051a2;
-  }
-  
+  padding: 20px;
+}
+
+.content {
+  display: flex;
+}
+
+.main {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.button {
+  margin-top: 20px;
+}
+
+.navigation {
+  margin-top: 20px;
+}
+
   

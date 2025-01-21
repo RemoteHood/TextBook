@@ -1,11 +1,8 @@
 import formidable from 'formidable';
 import fs from 'fs/promises';
 import pdf from 'pdf-parse';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
 
 export const config = {
   api: {
@@ -30,10 +27,11 @@ export default async function handler(req, res) {
         const data = await pdf(dataBuffer);
 
         const text = data.text;
-        const characters = await identifyCharacters(text);
+        const chunks = splitTextIntoChunks(text, 2000); // Split text into chunks of 2000 characters
+        const characters = await Promise.all(chunks.map(chunk => identifyCharacters(chunk)));
         const summary = await generateSummary(text);
 
-        res.status(200).json({ text, characters, summary });
+        res.status(200).json({ text, characters: flattenArray(characters), summary });
       });
     } catch (error) {
       console.error('Error handling request:', error);
@@ -44,19 +42,26 @@ export default async function handler(req, res) {
   }
 }
 
-async function identifyCharacters(text) {
+function splitTextIntoChunks(text, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < text.length; i += chunkSize) {
+    chunks.push(text.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+function flattenArray(array) {
+  return array.reduce((acc, val) => acc.concat(val), []);
+}
+
+async function identifyCharacters(chunk) {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4", // Updated to a valid model
-      messages: [
-        { role: "system", content: "You are a helpful assistant that identifies character names in text." },
-        { role: "user", content: `Please identify and list all character names mentioned in the following text. Only return the names as a comma-separated list:\n\n${text}` }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+    const { text } = await generateText({
+      model: openai('gpt-4'),
+      prompt: `Please identify and list all character names mentioned in the following text. Only return the names as a comma-separated list:\n\n${chunk}`
     });
 
-    return completion.choices[0].message.content.split(',').map(char => char.trim());
+    return text.split(',').map(char => char.trim());
   } catch (error) {
     console.error('Error identifying characters:', error);
     throw new Error('Failed to identify characters');
@@ -65,20 +70,16 @@ async function identifyCharacters(text) {
 
 async function generateSummary(text) {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4", // Updated to a valid model
-      messages: [
-        { role: "system", content: "You are a helpful assistant that generates concise summaries of text." },
-        { role: "user", content: `Please generate a brief summary of the following text:\n\n${text}` }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+    const { text } = await generateText({
+      model: openai('gpt-4'),
+      prompt: `Please generate a brief summary of the following text:\n\n${text}`
     });
 
-    return completion.choices[0].message.content;
+    return text;
   } catch (error) {
     console.error('Error generating summary:', error);
     throw new Error('Failed to generate summary');
   }
 }
+
 

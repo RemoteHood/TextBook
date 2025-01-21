@@ -1,33 +1,19 @@
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { characters, genres } = req.body;
 
     try {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You are a creative writer tasked with generating a chapter for a story."
-          },
-          {
-            role: "user",
-            content: `Generate a chapter based on the following characters: ${characters.join(', ')}. The genres are: ${genres.join(', ')}.`
-          }
-        ],
-        max_tokens: 1000
+      const { text } = await generateText({
+        model: openai('gpt-4o-mini'),
+        prompt: `Generate a chapter based on the following characters: ${characters.join(', ')}. The genres are: ${genres.join(', ')}.`
       });
 
-      const chapterContent = completion.choices[0].message.content;
       const chapterTitle = generateChapterTitle(characters, genres);
 
-      res.status(200).json({ title: chapterTitle, content: chapterContent });
+      res.status(200).json({ title: chapterTitle, content: text });
     } catch (error) {
       console.error('Error generating chapter:', error);
       res.status(500).json({ error: 'Error generating chapter' });
