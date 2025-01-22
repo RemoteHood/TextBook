@@ -1,59 +1,63 @@
 // pages/index.js
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 
-export default function Home() {
-  const [file, setFile] = useState(null);
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile?.type === 'application/pdf') {
-      setFile(selectedFile);
+export default function PDFUploadPage() {
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      'application/pdf': ['.pdf']
+    },
+    onDrop: acceptedFiles => {
+      setUploadedFiles(acceptedFiles);
     }
-  };
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">PDF Quiz Generator</h1>
-
-      {/* Drag & Drop Box */}
-      <label className="w-full max-w-md h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-white cursor-pointer hover:border-blue-400 transition-colors">
-        <input
-          type="file"
-          accept=".pdf"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
+      <h1 className="text-4xl font-bold text-white mb-8 text-center">
+        Upload Your PDF
+      </h1>
+      
+      <div 
+        {...getRootProps()} 
+        className={`
+          w-full max-w-xl p-12 border-2 rounded-xl text-center cursor-pointer transition-all duration-300
+          ${isDragActive 
+            ? 'border-blue-500 bg-gray-900 text-blue-400' 
+            : 'border-gray-600 bg-gray-800 text-gray-400 hover:border-blue-500'
+          }
+        `}
+      >
+        <input {...getInputProps()} />
         
-        <svg
-          className="w-8 h-8 text-gray-400 mb-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="1.5"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-          />
-        </svg>
-        
-        <p className="text-gray-500">
-          {file ? file.name : 'Drop PDF here or click to browse'}
-        </p>
-      </label>
+        {isDragActive ? (
+          <p className="text-blue-400">Drop the PDF here ...</p>
+        ) : (
+          <div>
+            <p className="text-lg">
+              Drag 'n' drop a PDF file here, or click to select a file
+            </p>
+            <em className="text-sm text-gray-500 mt-2 block">
+              (Only *.pdf files will be accepted)
+            </em>
+          </div>
+        )}
+      </div>
 
-      {/* Upload Button */}
-      {file && (
-        <button
-          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          onClick={() => console.log('File ready:', file)}
-        >
-          Upload PDF
-        </button>
+      {uploadedFiles.length > 0 && (
+        <div className="mt-6 text-white">
+          <h2 className="text-xl mb-2">Uploaded Files:</h2>
+          <ul>
+            {uploadedFiles.map((file, index) => (
+              <li key={index} className="bg-gray-800 p-2 rounded mb-2">
+                {file.name} - {Math.round(file.size / 1024)} KB
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
 }
-
