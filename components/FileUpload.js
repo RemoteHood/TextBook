@@ -1,5 +1,5 @@
+// components/FileUpload.js
 import { useState } from 'react';
-import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 export default function FileUpload({ onUpload }) {
   const [file, setFile] = useState(null);
@@ -39,9 +39,22 @@ export default function FileUpload({ onUpload }) {
           ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <div className="text-center p-8">
-          <ArrowUpTrayIcon className={`w-12 h-12 mx-auto mb-4 ${
-            error ? 'text-red-400' : 'text-gray-400'
-          }`} />
+          <svg
+            className={`w-12 h-12 mx-auto mb-4 ${
+              error ? 'text-red-400' : 'text-gray-400'
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            ></path>
+          </svg>
           
           <p className={`text-lg ${
             error ? 'text-red-500' : 'text-gray-600'
@@ -74,5 +87,3 @@ export default function FileUpload({ onUpload }) {
     </div>
   );
 }
-
-
