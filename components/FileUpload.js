@@ -1,4 +1,3 @@
-// components/FileUpload.js
 import { useState } from 'react';
 
 export default function FileUpload({ onUpload }) {
@@ -12,7 +11,7 @@ export default function FileUpload({ onUpload }) {
       setError('');
       handleUpload(file);
     } else {
-      setError('Please select a PDF file');
+      setError('Please select a valid PDF file');
       setFile(null);
     }
   };
@@ -20,6 +19,7 @@ export default function FileUpload({ onUpload }) {
   const handleUpload = async (file) => {
     setLoading(true);
     try {
+      // Simulate upload delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       onUpload();
     } catch (err) {
@@ -30,16 +30,16 @@ export default function FileUpload({ onUpload }) {
   };
 
   return (
-    <div className="relative group w-full max-w-xs">
+    <div className="relative group">
       <label 
         htmlFor="pdf-upload"
-        className={`flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg transition-all
-          ${error ? 'border-red-200 bg-red-50' : 'border-gray-200 hover:border-blue-300 bg-white'}
+        className={`flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-lg transition-all
+          ${error ? 'border-red-200 bg-red-50' : 'border-gray-200 hover:border-blue-400 bg-white'}
           ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
-        <div className="text-center p-4">
+        <div className="text-center p-6">
           <svg
-            className={`w-8 h-8 mx-auto mb-3 ${
+            className={`w-10 h-10 mx-auto mb-4 ${
               error ? 'text-red-400' : 'text-gray-400'
             }`}
             fill="none"
@@ -55,15 +55,15 @@ export default function FileUpload({ onUpload }) {
             ></path>
           </svg>
           
-          <p className={`text-sm ${
+          <p className={`text-lg ${
             error ? 'text-red-500' : 'text-gray-600'
-          } mb-1`}>
-            {error || (file ? file.name : 'Drag PDF or click here')}
+          } mb-2`}>
+            {error || (file ? file.name : 'Drop your PDF here or click to browse')}
           </p>
           
           {!file && !error && (
-            <p className="text-xs text-blue-500">
-              .pdf files only
+            <p className="text-sm text-gray-500">
+              Supported format: .pdf
             </p>
           )}
         </div>
@@ -82,6 +82,16 @@ export default function FileUpload({ onUpload }) {
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
         </div>
+      )}
+
+      {/* Generate Quiz Button */}
+      {file && !loading && !error && (
+        <button
+          onClick={handleUpload}
+          className="w-full mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Generate Quiz
+        </button>
       )}
     </div>
   );

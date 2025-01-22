@@ -6,12 +6,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'gray-850': '#18212f',
-      },
-      spacing: {
-        '128': '32rem',
+        'blue-50': '#eff6ff',
+        'purple-50': '#f5f3ff',
       },
     },
   },
   plugins: [],
-}
+};
