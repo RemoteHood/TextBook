@@ -1,31 +1,19 @@
 {
-  "name": "textbook-generator",
-  "version": "0.1.0",
-  "private": true,
+  "name": "pdf-quiz-generator",
+  "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
-    "@langchain/openai": "^0.0.14",
-    "@types/formidable": "^3.4.5",
-    "formidable": "^3.5.1",
-    "next": "14.0.4",
-    "pdf-parse": "^1.1.1",
-    "react": "^18",
-    "react-dom": "^18"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.0.4",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.1",
     "postcss": "^8.4.35",
-    "tailwindcss": "^3.3.0",
-    "postcss-import": "^15.1.0"
+    "autoprefixer": "^10.4.18"
   }
 }
-
 
 
