@@ -20,7 +20,6 @@ export default function FileUpload({ onUpload }) {
   const handleUpload = async (file) => {
     setLoading(true);
     try {
-      // Simulate upload delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       onUpload();
     } catch (err) {
@@ -31,16 +30,16 @@ export default function FileUpload({ onUpload }) {
   };
 
   return (
-    <div className="relative group">
+    <div className="relative group w-full max-w-xs">
       <label 
         htmlFor="pdf-upload"
-        className={`flex flex-col items-center justify-center h-64 border-4 border-dashed rounded-2xl transition-all
-          ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-blue-400 bg-white'}
+        className={`flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg transition-all
+          ${error ? 'border-red-200 bg-red-50' : 'border-gray-200 hover:border-blue-300 bg-white'}
           ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
-        <div className="text-center p-8">
+        <div className="text-center p-4">
           <svg
-            className={`w-12 h-12 mx-auto mb-4 ${
+            className={`w-8 h-8 mx-auto mb-3 ${
               error ? 'text-red-400' : 'text-gray-400'
             }`}
             fill="none"
@@ -51,20 +50,20 @@ export default function FileUpload({ onUpload }) {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="2"
+              strokeWidth="1.5"
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
             ></path>
           </svg>
           
-          <p className={`text-lg ${
+          <p className={`text-sm ${
             error ? 'text-red-500' : 'text-gray-600'
-          }`}>
-            {error || (file ? file.name : 'Drag & drop PDF or click to browse')}
+          } mb-1`}>
+            {error || (file ? file.name : 'Drag PDF or click here')}
           </p>
           
           {!file && !error && (
-            <p className="mt-2 text-sm text-blue-600">
-              Supported format: .pdf
+            <p className="text-xs text-blue-500">
+              .pdf files only
             </p>
           )}
         </div>
@@ -80,8 +79,8 @@ export default function FileUpload({ onUpload }) {
       />
 
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-2xl">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
         </div>
       )}
     </div>
