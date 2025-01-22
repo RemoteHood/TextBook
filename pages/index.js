@@ -1,15 +1,14 @@
-// pages/index.js
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 export default function PDFUploadPage() {
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       'application/pdf': ['.pdf']
     },
-    onDrop: acceptedFiles => {
+    onDrop: (acceptedFiles: File[]) => {
       setUploadedFiles(acceptedFiles);
     }
   });
@@ -39,9 +38,7 @@ export default function PDFUploadPage() {
             <p className="text-lg">
               Drag 'n' drop a PDF file here, or click to select a file
             </p>
-            <em className="text-sm text-gray-500 mt-2 block">
-              (Only *.pdf files will be accepted)
-            </em>
+            <em className="text-sm text-gray-500 mt-2 block">(Only *.pdf files will be accepted)</em>
           </div>
         )}
       </div>
