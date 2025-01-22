@@ -3,60 +3,47 @@ import { useState } from 'react';
 export default function FileUpload({ onUpload }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleFile = (file) => {
     if (file?.type === 'application/pdf') {
       setFile(file);
-      setError('');
-      handleUpload(file);
-    } else {
-      setError('Please select a valid PDF file');
-      setFile(null);
+      startUpload(file);
     }
   };
 
-  const handleUpload = async (file) => {
+  const startUpload = async (file) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       onUpload();
-    } catch (err) {
-      setError('Upload failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="w-full max-w-md space-y-4">
       {/* Drag & Drop Area */}
-      <label
-        className={`
-          flex flex-col items-center justify-center 
-          h-48 border-2 border-dashed rounded-lg
-          ${error ? 'border-red-200 bg-red-50' : 'border-gray-300 bg-white'}
-          ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          transition-all
-        `}
-      >
-        <div className="text-center p-4">
-          <svg
-            className={`w-8 h-8 mx-auto mb-3 ${error ? 'text-red-400' : 'text-gray-400'}`}
-            fill="none"
-            stroke="currentColor"
+      <label className={`
+        block h-48 border-2 border-dashed rounded-lg cursor-pointer
+        ${loading ? 'bg-gray-100 opacity-70' : 'bg-white hover:border-blue-400'}
+        ${file ? 'border-blue-400' : 'border-gray-300'}
+        transition-all
+      `}>
+        <div className="h-full flex flex-col items-center justify-center p-4">
+          <svg 
+            className={`w-10 h-10 mb-4 ${file ? 'text-blue-500' : 'text-gray-400'}`}
+            fill="none" 
+            stroke="currentColor" 
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" 
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
           
-          <p className={`text-sm ${error ? 'text-red-500' : 'text-gray-600'}`}>
-            {error || (file ? file.name : 'Drop your PDF here or click to browse')}
+          <p className={`text-center ${file ? 'text-blue-600' : 'text-gray-500'}`}>
+            {file ? file.name : 'Drag PDF here or click to upload'}
           </p>
         </div>
         
@@ -65,24 +52,20 @@ export default function FileUpload({ onUpload }) {
           accept=".pdf"
           className="hidden"
           onChange={(e) => handleFile(e.target.files?.[0])}
+          disabled={loading}
         />
       </label>
 
-      {/* Generate Quiz Button */}
-      {file && !loading && (
+      {/* Generate Button */}
+      {file && (
         <button
-          onClick={handleUpload}
-          className="w-full py-2.5 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          onClick={startUpload}
+          disabled={loading}
+          className={`w-full py-3 px-6 rounded-lg font-medium transition-colors
+            ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
         >
           {loading ? 'Processing...' : 'Generate Quiz'}
         </button>
-      )}
-
-      {/* Loading Spinner */}
-      {loading && (
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-        </div>
       )}
     </div>
   );
