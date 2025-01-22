@@ -13,6 +13,7 @@ export default function Home() {
   const [currentChapter, setCurrentChapter] = useState(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [uploaded, setUploaded] = useState(false);
 
   // Load chapters from localStorage on initial render
   useEffect(() => {
@@ -35,6 +36,7 @@ export default function Home() {
 
   const handleUpload = async (data) => {
     setCharacters(data.characters);
+    setUploaded(true);
   };
 
   const handleSelect = (type, value) => {
@@ -106,55 +108,61 @@ export default function Home() {
   };
 
   return (
-    <div className="container">
-      <h1 className="header">Story Generator</h1>
-      <div className="mb-8">
-        <FileUpload onUpload={handleUpload} />
-      </div>
-      <div className="content">
-        <div className="sidebar">
-          <Sidebar
-            characters={characters}
-            genres={genres}
-            selectedCharacters={selectedCharacters}
-            selectedGenres={selectedGenres}
-            onSelect={handleSelect}
-          />
-          {chapters.length > 0 && (
-            <button
-              onClick={clearAllChapters}
-              className="mt-4 w-full btn btn-secondary"
-            >
-              Clear All Chapters
-            </button>
-          )}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <h1 className="text-4xl font-bold mb-8">Under View</h1>
+      {!uploaded && (
+        <div className="w-full max-w-md">
+          <FileUpload onUpload={handleUpload} />
         </div>
-        <div className="chapter">
-          {currentChapter ? (
-            <ChapterDisplay
-              title={currentChapter.title}
-              content={currentChapter.content}
-              onGenerateNext={generateChapter}
-              onNavigate={handleNavigate}
-              currentChapterIndex={currentChapterIndex}
-              totalChapters={chapters.length}
-            />
-          ) : (
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <p className="text-gray-600">
-                Upload a PDF and select characters and genres to generate your first chapter
-              </p>
-              <button
-                onClick={generateChapter}
-                disabled={selectedCharacters.length === 0 || selectedGenres.length === 0 || loading}
-                className="btn btn-primary mt-4"
-              >
-                {loading ? 'Generating...' : 'Generate First Chapter'}
-              </button>
+      )}
+      {uploaded && (
+        <div className="w-full max-w-6xl">
+          <div className="content">
+            <div className="sidebar">
+              <Sidebar
+                characters={characters}
+                genres={genres}
+                selectedCharacters={selectedCharacters}
+                selectedGenres={selectedGenres}
+                onSelect={handleSelect}
+              />
+              {chapters.length > 0 && (
+                <button
+                  onClick={clearAllChapters}
+                  className="mt-4 w-full btn btn-secondary"
+                >
+                  Clear All Chapters
+                </button>
+              )}
             </div>
-          )}
+            <div className="chapter">
+              {currentChapter ? (
+                <ChapterDisplay
+                  title={currentChapter.title}
+                  content={currentChapter.content}
+                  onGenerateNext={generateChapter}
+                  onNavigate={handleNavigate}
+                  currentChapterIndex={currentChapterIndex}
+                  totalChapters={chapters.length}
+                />
+              ) : (
+                <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+                  <p className="text-gray-600">
+                    Upload a PDF and select characters and genres to generate your first chapter
+                  </p>
+                  <button
+                    onClick={generateChapter}
+                    disabled={selectedCharacters.length === 0 || selectedGenres.length === 0 || loading}
+                    className="btn btn-primary mt-4"
+                  >
+                    {loading ? 'Generating...' : 'Generate First Chapter'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -51,30 +51,48 @@ export default function FileUpload({ onUpload }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-lg font-medium text-gray-700 mb-2">
             Upload PDF
           </label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleFileChange}
-            className="mt-1 block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-blue-700
-              hover:file:bg-blue-100"
-          />
+          <div className="flex items-center justify-center w-full">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors">
+              <div className="flex flex-col items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-gray-500 mb-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  ></path>
+                </svg>
+                <p className="text-sm text-gray-500">
+                  {file ? file.name : 'Choose a PDF file'}
+                </p>
+              </div>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <button
           type="submit"
           disabled={!file || loading}
           className={`w-full px-4 py-2 rounded-lg font-medium transition-colors
-            ${loading 
+            ${loading
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700'} 
             text-white`}
