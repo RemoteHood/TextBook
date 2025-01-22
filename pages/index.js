@@ -1,3 +1,4 @@
+// pages/index.js
 import { useState, useEffect } from 'react';
 import FileUpload from '../components/FileUpload';
 import Sidebar from '../components/Sidebar';
@@ -13,22 +14,24 @@ export default function Home() {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // Load chapters from localStorage on initial render
   useEffect(() => {
-    loadChapters();
+    const savedChapters = localStorage.getItem('chapters');
+    if (savedChapters) {
+      const parsedChapters = JSON.parse(savedChapters);
+      setChapters(parsedChapters);
+      if (parsedChapters.length > 0) {
+        setCurrentChapter(parsedChapters[0]);
+      }
+    }
   }, []);
 
-  const loadChapters = async () => {
-    try {
-      const response = await fetch('/api/loadChapters');
-      const data = await response.json();
-      setChapters(data);
-      if (data.length > 0) {
-        setCurrentChapter(data[0]);
-      }
-    } catch (error) {
-      console.error('Error loading chapters:', error);
+  // Save chapters to localStorage whenever they change
+  useEffect(() => {
+    if (chapters.length > 0) {
+      localStorage.setItem('chapters', JSON.stringify(chapters));
     }
-  };
+  }, [chapters]);
 
   const handleUpload = async (data) => {
     setCharacters(data.characters);
@@ -72,17 +75,12 @@ export default function Home() {
 
       const newChapter = await response.json();
       
-      await fetch('/api/saveChapter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newChapter),
-      });
-
-      setChapters(prev => [...prev, newChapter]);
+      // Update chapters state and localStorage
+      const updatedChapters = [...chapters, newChapter];
+      setChapters(updatedChapters);
       setCurrentChapter(newChapter);
-      setCurrentChapterIndex(chapters.length);
+      setCurrentChapterIndex(updatedChapters.length - 1);
+      
     } catch (error) {
       console.error('Error generating chapter:', error);
       alert('Error generating chapter');
@@ -95,6 +93,15 @@ export default function Home() {
     if (index >= 0 && index < chapters.length) {
       setCurrentChapter(chapters[index]);
       setCurrentChapterIndex(index);
+    }
+  };
+
+  const clearAllChapters = () => {
+    if (window.confirm('Are you sure you want to clear all chapters?')) {
+      localStorage.removeItem('chapters');
+      setChapters([]);
+      setCurrentChapter(null);
+      setCurrentChapterIndex(0);
     }
   };
 
@@ -113,6 +120,14 @@ export default function Home() {
             selectedGenres={selectedGenres}
             onSelect={handleSelect}
           />
+          {chapters.length > 0 && (
+            <button
+              onClick={clearAllChapters}
+              className="mt-4 w-full btn btn-secondary"
+            >
+              Clear All Chapters
+            </button>
+          )}
         </div>
         <div className="chapter">
           {currentChapter ? (
